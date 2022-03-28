@@ -29,7 +29,7 @@ public class GetImage implements Serializable{
     public void saveImage(String extension,String path) throws IOException{
         try{
             File file = new File(path);
-           ImageIO.write((RenderedImage) image,"png",file);
+            ImageIO.write((RenderedImage) image,"png",file);
         }catch (IOException e) {
             System.out.println("write Exception");
         }
