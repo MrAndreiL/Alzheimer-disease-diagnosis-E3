@@ -2,6 +2,7 @@ import cv2
 import glob
 import os.path
 import numpy
+from skimage import io
 
 
 def compare(image1, image2):
@@ -15,26 +16,37 @@ def compare(image1, image2):
     return percentage
 
 
-imdir = 'brainsToCompareWith'
-imdir2 = 'brainsFromSlicing'
-ext = ['png', 'jpg', 'gif']
+def createArrays(imagesToCompareWith, imagesFromSlicing):
+    file_list = glob.glob(
+        r'C:\Users\Rogue EX\Desktop\relevant\brainsToCompareWith\*.*'
+    )
+    file_list2 = glob.glob(
+        r'C:\Users\Rogue EX\Desktop\relevant\brainsFromSlicing\*.*'
+    )
 
-files = []
-[files.extend(glob.glob(imdir + '*.' + e)) for e in ext]
+    for file in file_list:
+        im = io.imread(file)
+        imagesToCompareWith.append(im)
 
-files2 = []
-[files.extend(glob.glob(imdir2 + '*.' + e)) for e in ext]
-#problema
-imagesToCompareWith = [cv2.imread(file) for file in files]
-imagesFromSlicing = [cv2.imread(file) for file in files2]
+    for file in file_list2:
+        im = io.imread(file)
+        imagesFromSlicing.append(im)
 
-i = 0
-for img1 in imagesFromSlicing:
-    flag = 0
-    for img2 in imagesToCompareWith:
-        if compare(img1, img2) < 20:
-            flag = 1
-    if flag == 1:
-        i = i + 1
-        cv2.imwrite(os.path.join('C:/Users/Rogue EX/Desktop/relevant/resources', 'brain' +
-                                 i + '.jpg'), img1)
+
+def chooseRelevantImages(imagesToSelectFrom, imagesToCompareWith):
+    numberOfPhoto = 0
+    for img1 in imagesToSelectFrom:
+        flag = 0
+        for img2 in imagesToCompareWith:
+            if compare(img1, img2) < 20:
+                flag = 1
+        if flag == 1:
+            numberOfPhoto = numberOfPhoto + 1
+            cv2.imwrite(os.path.join(r'C:\Users\Rogue EX\Desktop\relevant\new brains', 'brain' +
+                                     str(numberOfPhoto) + '.jpg'), img1)
+
+
+imagesToCompareWith = []
+imagesFromSlicing = []
+createArrays(imagesToCompareWith, imagesFromSlicing)
+chooseRelevantImages(imagesFromSlicing, imagesToCompareWith)
