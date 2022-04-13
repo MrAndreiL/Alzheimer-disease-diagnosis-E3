@@ -24,7 +24,7 @@ files = []
 
 files2 = []
 [files.extend(glob.glob(imdir2 + '*.' + e)) for e in ext]
-
+#problema
 imagesToCompareWith = [cv2.imread(file) for file in files]
 imagesFromSlicing = [cv2.imread(file) for file in files2]
 
@@ -36,5 +36,5 @@ for img1 in imagesFromSlicing:
             flag = 1
     if flag == 1:
         i = i + 1
-        cv2.imwrite(os.path.join(r'C:\chestii\de mutat\cursuri\anul2\SEM2\PI\Pre-Processing\brainsRelevant', 'brain' +
+        cv2.imwrite(os.path.join('C:/Users/Rogue EX/Desktop/relevant/resources', 'brain' +
                                  i + '.jpg'), img1)

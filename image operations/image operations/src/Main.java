@@ -8,8 +8,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Basic_Image a = new Basic_Image();
         Basic_Image b = new Basic_Image();
-        a.setImage("C:\\Users\\Rogue EX\\Desktop\\image operations\\resources\\brain.png");
-        a.saveImage("png", "C:\\Users\\Rogue EX\\Desktop\\image operations\\resources\\brain.png");
+        a.setImage("C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resources\\brain.png");
+        a.saveImage("png", "C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resourcesbrain.png");
 
         // try block to check for exceptions
 
@@ -17,7 +17,7 @@ public class Main {
 
             // Reading original image
             BufferedImage originalImg = ImageIO.read(
-                    new File("C:\\Users\\Rogue EX\\Desktop\\image operations\\resources\\brain.png"));
+                    new File("C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resourcesbrain.png"));
 
             // Getting and Printing dimensions of original
             // image
@@ -42,7 +42,7 @@ public class Main {
 
             BufferedImage paddedImage=PadImage.PadImage(originalImg, right_border, bottom_border, left_border, top_border);
             File outputfile2
-                    = new File("C:\\Users\\Rogue EX\\Desktop\\image operations\\resources\\brain_pad.png");
+                    = new File("C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resourcesbrain_pad.png");
             ImageIO.write(paddedImage, "jpeg", outputfile2);
             System.out.println("Padded image dimensions: " + paddedImage.getWidth() + "x" + paddedImage.getHeight());
             System.out.println();
@@ -63,7 +63,7 @@ public class Main {
                     + croppedImage.getWidth() + "x"
                     + croppedImage.getHeight());
             File outputfile1
-                    = new File("C:\\Users\\Rogue EX\\Desktop\\image operations\\resources\\brain_cropped.png");
+                    = new File("C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resources\\brain_cropped.png");
             ImageIO.write(croppedImage, "jpeg", outputfile1);
             System.out.println();
 
@@ -76,7 +76,7 @@ public class Main {
 
             // Creating new file for rotated image
             File outputfile
-                    = new File("C:\\Users\\Rogue EX\\Desktop\\image operations\\resources\\brain_rotated.png");
+                    = new File("C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resources\\brain_rotated.png");
 
             // Writing image in new file created
             ImageIO.write(SubImg, "jpeg", outputfile);
@@ -91,6 +91,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        ContrastEnhancement.ContrastEnhancement("C:\\Users\\Rogue EX\\Desktop\\image operations\\resources\\brain.png","C:\\\\Users\\\\Rogue EX\\\\Desktop\\\\image operations\\\\resources\\\\brain_enhanced.png");
+        ContrastEnhancement.ContrastEnhancement("C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resources\\brain.png","C:\\Users\\Rogue EX\\Desktop\\LaboratorJava\\Alzheimer-disease-diagnosis-E3\\image operations\\resources\\brain_enhanced.png");
     }
 }
