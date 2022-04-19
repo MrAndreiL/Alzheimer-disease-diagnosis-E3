@@ -1,52 +1,58 @@
+from email.mime import image
 import cv2
+import numpy as np
 import glob
-import os.path
-import numpy
-from skimage import io
 
 
-def compare(image1, image2):
+class RelevantImages():
+    imagesFromSlicing = []
+    imagesToCompareWith = []
 
-    res = cv2.absdiff(image1, image2)
+    def __init__(self,path1, path2) -> None:
+        self.imagesFromSlicing = [cv2.imread(file) for file in glob.glob(f'{path1}/*.png')]
+        self.imagesToCompareWith = [cv2.imread(file) for file in glob.glob(f'{path2}/*.png')]
 
-    res = res.astype(numpy.uint8)
+    def compare(self,image1, image2):
+        sift = cv2.xfeatures2d.SIFT_create()
+        kp_1, desc_1 = sift.detectAndCompute(image1, None)
+        kp_2, desc_2 = sift.detectAndCompute(image2, None)
 
-    percentage = (numpy.count_nonzero(res) * 100) / res.size
+        index_params = dict(algorithm=0, trees=5)
+        search_params = dict()
+        flann = cv2.FlannBasedMatcher(index_params, search_params)
 
-    return percentage
+        matches = flann.knnMatch(desc_1, desc_2, k=2)
 
+        good_points = []
+        for m, n in matches:
+            if m.distance < 0.6*n.distance:
+                good_points.append(m)
 
-def createArrays(imagesToCompareWith, imagesFromSlicing):
-    file_list = glob.glob(
-        r'C:\Users\Rogue EX\Desktop\relevant\brainsToCompareWith\*.*'
-    )
-    file_list2 = glob.glob(
-        r'C:\Users\Rogue EX\Desktop\relevant\brainsFromSlicing\*.*'
-    )
+        number_keypoints = 0
+        if len(kp_1) <= len(kp_2):
+            number_keypoints = len(kp_1)
+        else:
+            number_keypoints = len(kp_2)
 
-    for file in file_list:
-        im = io.imread(file)
-        imagesToCompareWith.append(im)
+        print("% comparare: ", len(good_points) / number_keypoints * 100)
 
-    for file in file_list2:
-        im = io.imread(file)
-        imagesFromSlicing.append(im)
+        return len(good_points) / number_keypoints * 100
 
+    def compareAll(self):
+        numberOfPhoto = 0
+        for image in self.imagesFromSlicing:
+            flag = 0
+            for image2 in self.imagesToCompareWith:
+                result = self.compare(image, image2)
+                if result > 80:
+                    flag = 1
+            if(flag == 1):
+                numberOfPhoto += 1
+                cv2.imwrite(f'brainsRelevant/{"Brain" + str(numberOfPhoto)}.png',image)
+        return numberOfPhoto
 
-def chooseRelevantImages(imagesToSelectFrom, imagesToCompareWith):
-    numberOfPhoto = 0
-    for img1 in imagesToSelectFrom:
-        flag = 0
-        for img2 in imagesToCompareWith:
-            if compare(img1, img2) < 20:
-                flag = 1
-        if flag == 1:
-            numberOfPhoto = numberOfPhoto + 1
-            cv2.imwrite(os.path.join(r'C:\Users\Rogue EX\Desktop\relevant\new brains', 'brain' +
-                                     str(numberOfPhoto) + '.jpg'), img1)
+path1 = r'C:\chestii\de mutat\cursuri\anul2\SEM2\PI\Pre-Processing\brainsFromSlicing'
+path2 = r'C:\chestii\de mutat\cursuri\anul2\SEM2\PI\Pre-Processing\brainsToCompareWith'
 
-
-imagesToCompareWith = []
-imagesFromSlicing = []
-createArrays(imagesToCompareWith, imagesFromSlicing)
-chooseRelevantImages(imagesFromSlicing, imagesToCompareWith)
+scanner = RelevantImages(path1,path2)
+print(scanner.compareAll())

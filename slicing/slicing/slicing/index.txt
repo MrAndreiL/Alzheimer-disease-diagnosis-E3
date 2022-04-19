@@ -1,0 +1,7 @@
+venv\Scripts\activate.bat
+
+
+coverage run --source='.' main.py "C:\\Users\\Rogue EX\\Desktop\\resurse"  "C:\\Users\\Rogue EX\\Desktop\\resurse\\"  "C:\\Users\\Rogue EX\\Desktop\\resurse\\" test --keepdb
+
+
+coverage report --skip-covered -m

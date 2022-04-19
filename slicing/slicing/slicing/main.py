@@ -3,16 +3,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 
 import numpy as np
-import pandas as pd
+
 import SimpleITK as sitk
 from matplotlib import pyplot as plt
-from scipy.ndimage import map_coordinates
-from scipy.ndimage import gaussian_filter
-from scipy import ndimage
-import math
-from skimage.filters import threshold_mean
+
 import cv2
-import matplotlib as mpl
+
 import sys
 
 
