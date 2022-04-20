@@ -1,270 +1,108 @@
-# importing all the required Libraries
-from collections import Counter
-import cv2
-import glob
-import skimage
-import numpy as np
+#import required libraries - we do need the models, flatten, dense, input layers 
+import numpy as np 
 import pandas as pd
-import seaborn as sn
-from tqdm import tqdm
-from os import listdir
+from glob import glob 
+import tensorflow as tf
 import matplotlib.pyplot as plt
-from skimage.transform import resize
-from collections import Counter
-import warnings
-warnings.filterwarnings("ignore")
-
-sn.set()
-
-from sklearn.pipeline import make_pipeline
-from sklearn.pipeline import Pipeline
-from sklearn.feature_selection import SelectFromModel
-from time import time
-
-from sklearn import metrics
-from sklearn.utils import shuffle
-from sklearn import metrics
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score,f1_score,recall_score,cohen_kappa_score,precision_score
-from sklearn.utils import compute_class_weight
-from sklearn.preprocessing import MinMaxScaler,LabelBinarizer, LabelEncoder
-from sklearn.neighbors import KNeighborsClassifier # KNeighborsClassifier
-from sklearn.svm import SVC # SVM
-from sklearn.ensemble import RandomForestClassifier # RandomForestClassifier
-from sklearn.ensemble import AdaBoostClassifier # AdaBoostClassifier
-from xgboost import XGBClassifier # XGBClassifier
-from sklearn.model_selection import train_test_split
-
-import tensorflow 
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.metrics import AUC
+from tensorflow.keras.layers import Input, Lambda, Dense, Flatten
+from tensorflow.keras.models import Model
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg19 import VGG19
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.applications.vgg16 import VGG16 # VGG16
-from tensorflow.keras.applications.vgg19 import VGG19 # VGG19
-from tensorflow.keras.applications.resnet50 import ResNet50 # ResNet50
-from tensorflow.keras.applications import ResNet101 # ResNet 101
-from tensorflow.keras.applications.xception import Xception # Xception
-from tensorflow.keras.applications.mobilenet import MobileNet # MobileNet
-from tensorflow.keras.applications.densenet import DenseNet169 # DenseNet169
-from tensorflow.keras.applications.densenet import DenseNet121 # DenseNet121
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2 # MobileNetV2
-from tensorflow.keras.applications.inception_v3 import InceptionV3 # InceptionV3
-from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization, Flatten, Activation, GlobalAveragePooling2D,Conv2D, MaxPooling2D
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.models import Sequential
 
-def loadImages(path):
-    '''
-        parameters
-        ----------
-        path : input path of the images
-        
-        returns
-        -------
-        loadedImages : list of loaded images 
-    '''
-    sample = []
+# Path for train, validation and test datasets
+train_path = 'test/train'
+valid_path = 'test/train'
+test_path = 'test/test' 
+
+IMAGE_SIZE = [224, 224] #Default image size for VGG16 
+
+folders = glob('test/train/*') #Get number of classes
+
+
+# ImageDataGenerator can help perform augumentation on existing images. This way, we get more diverse train set.
+train_datagen = ImageDataGenerator(rescale = 1./255, shear_range = 0.2, zoom_range = 0.2, horizontal_flip = True)
+validation_datagen = ImageDataGenerator(rescale = 1./255)
+test_datagen = ImageDataGenerator(rescale = 1./255)
+
+#Through flow_from_directory - we create an array of images that can be used for training. 
+training_set = train_datagen.flow_from_directory('test/train',
+                                                 target_size = (224, 224),
+                                                 batch_size = 64,
+                                                 class_mode = 'categorical')
+
+validation_set = validation_datagen.flow_from_directory('test/train',
+                                                 target_size = (224, 224),
+                                                 batch_size = 32,
+                                                 class_mode = 'categorical')
+
+test_set = test_datagen.flow_from_directory('test/test',
+                                            target_size = (224, 224),
+                                            batch_size = 64,
+                                            class_mode = 'categorical')
+                                           
+# Create a VGG16 model, and removing the last layer that is classifying 1000 images. This will be replaced with images classes we have. 
+#vgg = VGG16(input_shape=IMAGE_SIZE + [3], weights='imagenet', include_top=False) #Training with Imagenet weights
+
+# Use this line for VGG19 network. Create a VGG19 model, and removing the last layer that is classifying 1000 images. This will be replaced with images classes we have. 
+vgg = VGG19(input_shape=IMAGE_SIZE + [3], weights='imagenet', include_top=False)
+
+# This sets the base that the layers are not trainable. If we'd want to train the layers with custom data, these two lines can be ommitted. 
+for layer in vgg.layers:
+  layer.trainable = False
+
+x = Flatten()(vgg.output) #Output obtained on vgg16 is now flattened. 
+prediction = Dense(len(folders), activation='softmax')(x)
+
+#Creating model object 
+model = Model(inputs=vgg.input, outputs=prediction)
+
+model.summary()
+
+#Compile the model 
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy']) 
+history = model.fit(training_set, validation_data=validation_set, epochs=1, batch_size=32)
+
+print("start")
+scores = model.evaluate(training_set)
+print("end")
+
+
+model.save_weights('alzheimer_model.h5')
+print(np.size(model.layers))
+#functie aici cu parametru path
+img_path = "test/train/yes/moderateDem0.jpg"
+img = plt.imread(img_path)
+plt.imshow(img)
+img = image.load_img(img_path, target_size=(224, 224))
+x = image.img_to_array(img)
+x = np.expand_dims(x, axis=0)
+images = np.vstack([x])
+classes = model.predict(images, batch_size=1)
+
+x=np.round(classes[0][0])
+y=np.round(classes[0][1])
+if x==1.0:
+    print("nu")
+else:
+    print("da")
     
-    for filename in glob.glob(path):
-        
-        img = cv2.imread(filename)
-        img = skimage.transform.resize(img, (224, 224, 3))
-        IMG = np.array(img)
-        sample.append(IMG)
-        
-    return sample
 
-train_path1 = 'train/NonDemented/*.jpg' 
-train_path2 = 'train/VeryMildDemented/*.jpg'
-train_path3 = 'train/MildDemented/*.jpg'
-train_path4 = 'train/ModerateDemented/*.jpg'
+img_path = "test/train/no/nonDem226.jpg"
+img = plt.imread(img_path)
+plt.imshow(img)
+img = image.load_img(img_path, target_size=(224, 224))
+x = image.img_to_array(img)
+x = np.expand_dims(x, axis=0)
+images = np.vstack([x])
+classes = model.predict(images, batch_size=1)
 
-test_path1 = 'test/NonDemented/*.jpg' 
-test_path2 = 'test/VeryMildDemented/*.jpg'
-test_path3 = 'test/MildDemented/*.jpg'
-test_path4 = 'test/ModerateDemented/*.jpg'
-
-train_ND = loadImages(train_path1)
-train_VMD = loadImages(train_path2)
-train_MID = loadImages(train_path3)
-train_MOD = loadImages(train_path4)
-
-test_ND = loadImages(test_path1)
-test_VMD = loadImages(test_path2)
-test_MID = loadImages(test_path3)
-test_MOD = loadImages(test_path4)
-#%% CREATION OF DATASETS
-
-df_train_ND = pd.DataFrame({'image':train_ND, 'label': 'ND'})
-df_train_VMD = pd.DataFrame({'image':train_VMD, 'label': 'VMD'})
-df_train_MID = pd.DataFrame({'image':train_MID, 'label': 'MID'})
-df_train_MOD = pd.DataFrame({'image':train_MOD, 'label': 'MOD'})
-
-df_test_ND = pd.DataFrame({'image':test_ND, 'label': 'ND'})
-df_test_VMD = pd.DataFrame({'image':test_VMD, 'label': 'VMD'})
-df_test_MID = pd.DataFrame({'image':test_MID, 'label': 'MID'})
-df_test_MOD = pd.DataFrame({'image':test_MOD, 'label': 'MOD'})
-final_data = [df_train_ND, df_train_VMD, df_train_MID, df_train_MOD, df_test_ND, df_test_VMD, df_test_MID, df_test_MOD]
-final_data = pd.concat(final_data)
-
-print("Entire data size:",final_data.shape)
-#%% TRAIN LABEL SEPARATION
-
-train_data = final_data['image']
-labels = final_data['label']
-#%% LOOKING AT THE AMOUNT OF ITEMS PER CLASS 
-
-print("Labels Count:",Counter(np.array(labels)))
-#%% ENCODING THE LABELS
-onehot = LabelEncoder()
-labels = onehot.fit_transform(labels)
-print(labels)
-#%% SPLITTING INTO TRAIN AND TEST SET, TRAIN SET WILL BE FURTHER SPLIT INTO TRAIN AND VALIDATION SET
-X_train, X_test, y_train, y_test = train_test_split(train_data, labels,
-                                                  test_size = 0.2,
-                                                  stratify = labels,
-                                                  shuffle = True,
-                                                  random_state = 42)
-
-print('length X_train:', len(X_train))
-print('length y_train:', len(y_train))
-
-print('length X_test:',  len(X_test))
-print('length y_test:', len(y_test))
-X_train = np.array(X_train)
-X_test = np.array(X_test)
-x_train= np.empty((len(X_train),X_train[0].shape[0],X_train[0].shape[1],X_train[0].shape[2]))
-for i,x in enumerate(X_train):
-    x_train[i]=X_train[i]
-print(x_train.shape)
-x_test= np.empty((len(X_test),X_test[0].shape[0],X_test[0].shape[1],X_test[0].shape[2]))
-for i,x in enumerate(X_test):
-    x_test[i]=X_test[i]
-print(x_test.shape)
-base_model = VGG19(include_top=False, weights='imagenet', input_shape=(224,224,3))
-base_model.summary()
-x = base_model.output
-x =  Dropout(0.5)(x)
-x = Flatten()(x)
-x = BatchNormalization()(x)
-x = Dense(1024,kernel_initializer='he_uniform')(x)
-x = BatchNormalization()(x)
-x = Activation('relu')(x)
-x =  Dropout(0.5)(x)
-x = Dense(1024,kernel_initializer='he_uniform')(x)
-x = BatchNormalization()(x)
-x = Activation('relu')(x)
-x =  Dropout(0.5)(x)
-x = Dense(1024,kernel_initializer='he_uniform')(x)
-x = BatchNormalization()(x)
-x = Activation('relu')(x)
-x =  Dropout(0.5)(x)
-
-predictions = Dense(4, activation='softmax')(x)
-
-model_feat = Model(inputs=base_model.input,outputs=predictions)
-
-train_features = model_feat.predict(x_train)
-test_features=model_feat.predict(x_test)
-# Getting Train and validation accuracy
-x_train_acc, x_val_acc, y_train_acc, y_val_acc = train_test_split(train_features,y_train,
-                                                  test_size = 0.2,
-                                                  stratify = y_train,
-                                                  shuffle = True,
-                                                  random_state = 42)
-X_test,y_test=test_features,y_test
-
-print('length X_train:', len(x_train_acc))
-print('length y_train:', len(y_train_acc))
-
-print('length X_val:',  len(x_val_acc))
-print('length y_val:', len(y_val_acc))
-
-print('length X_test:',  len(X_test))
-print('length y_test:', len(y_test))
-def classifier_summary(pipeline, X_train, y_train, X_val, y_val,X_test,y_test):
-    sentiment_fit = pipeline.fit(X_train, y_train)
-    
-    y_pred_train= sentiment_fit.predict(X_train)
-    y_pred_val = sentiment_fit.predict(X_val)
-    y_pred_test = sentiment_fit.predict(X_test)
-    
-    train_accuracy = np.round(accuracy_score(y_train, y_pred_train),4)*100
-    train_precision = np.round(precision_score(y_train, y_pred_train, average='weighted'),4)
-    train_recall = np.round(recall_score(y_train, y_pred_train, average='weighted'),4)
-    train_F1 = np.round(f1_score(y_train, y_pred_train, average='weighted'),4)
-    train_kappa =  np.round(cohen_kappa_score(y_train, y_pred_train),4)
-    train_confusion_matrix = confusion_matrix(y_train,y_pred_train)
-    
-    val_accuracy = np.round(accuracy_score(y_val, y_pred_val),4)*100
-    val_precision = np.round(precision_score(y_val, y_pred_val, average='weighted'),4)
-    val_recall = np.round(recall_score(y_val, y_pred_val, average='weighted'),4)
-    val_F1 = np.round(f1_score(y_val, y_pred_val, average='weighted'),4)
-    val_kappa =  np.round(cohen_kappa_score(y_val, y_pred_val),4)
-    val_confusion_matrix = confusion_matrix(y_val,y_pred_val)
-    
-    test_accuracy = np.round(accuracy_score(y_test, y_pred_test),4)*100
-    test_precision = np.round(precision_score(y_test, y_pred_test, average='weighted'),4)
-    test_recall = np.round(recall_score(y_test, y_pred_test, average='weighted'),4)
-    test_F1 = np.round(f1_score(y_test, y_pred_test, average='weighted'),4)
-    test_kappa =  np.round(cohen_kappa_score(y_test, y_pred_test),4) 
-    test_confusion_matrix = confusion_matrix(y_test,y_pred_test)
-    
-    
-    print()
-    print('------------------------ Train Set Metrics------------------------')
-    print()
-    print("accuracy : {}%".format(train_accuracy))
-    print("F1_score : {}".format(train_F1))
-    print("Cohen Kappa Score : {} ".format(train_kappa))
-    print("Recall : {}".format(train_recall))
-    print("Precision : {}".format(train_precision))
-    print("Confusion Matrix :\n {}".format(train_confusion_matrix))
-    
-    print()
-    print('------------------------ Validation Set Metrics------------------------')
-    print()
-    print("accuracy : {}%".format(val_accuracy))
-    print("F1_score : {}".format(val_F1))
-    print("Cohen Kappa Score : {} ".format(val_kappa))
-    print("Recall : {}".format(val_recall))
-    print("Precision : {}".format(val_precision))
-    print("Confusion Matrix :\n {}".format(val_confusion_matrix))
-    
-    print()
-    print('------------------------ Test Set Metrics------------------------')
-    print()
-    print("accuracy : {}%".format(test_accuracy))
-    print("F1_score : {}".format(test_F1))
-    print("Cohen Kappa Score : {} ".format(test_kappa))
-    print("Recall : {}".format(test_recall))
-    print("Precision : {}".format(test_precision))
-    print("Confusion Matrix : {}".format(test_confusion_matrix))
-
-    print("-"*80)
-    print()
-names = [
-        "K Nearest Neighbour Classifier",
-        'SVM',
-        "Random Forest Classifier",
-        "AdaBoost Classifier", 
-        "XGB Classifier",
-         ]
-classifiers = [
-    KNeighborsClassifier(),
-    SVC(),
-    RandomForestClassifier(),
-    AdaBoostClassifier(),
-    XGBClassifier(),
-        ]
-
-zipped_clf = zip(names,classifiers)
-def classifier_comparator(X_train,y_train,X_val,y_val,X_test,y_test,classifier=zipped_clf): 
-    result = []
-    for n,c in classifier:
-        checker_pipeline = Pipeline([
-            ('classifier', c)
-        ])
-        print("Fitting {} on features ".format(n))
-        #print(c)
-        classifier_summary(checker_pipeline,X_train, y_train, X_val, y_val,X_test,y_test)
-classifier_comparator(x_train_acc,y_train_acc,x_val_acc,y_val_acc,X_test,y_test,classifier=zipped_clf)
+x=np.round(classes[0][0])
+y=np.round(classes[0][1])
+if x==1.0:
+    print("nu")
+else:
+    print("da")
+                                            
