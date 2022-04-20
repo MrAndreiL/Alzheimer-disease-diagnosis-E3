@@ -330,20 +330,22 @@ class DataAugmentationAPI:
         else:
             preference = self.removeOriginalFiles(None)
         directories = os.listdir(self.source)
+        if self.source == self.destination:
+            for dir in directories:
+                if ('_Augmented' in dir) is True:
+                    shutil.rmtree(os.path.join(self.source,dir))
+        else:
+            directories_dest = os.listdir(self.destination)
+            for dir in directories_dest:
+                if ('_Augmented' in dir) is True:
+                    shutil.rmtree(os.path.join(self.destination,dir))
+        directories = os.listdir(self.source)
         for dir in directories:
-            if '_Augmented' in dir is True:
-                shutil.rmtree(self.source+'\\'+dir)
             path_original = os.path.join(self.source, dir)
             path_destination = os.path.join(self.destination, dir)
-            if os.path.exists(path_destination):
-                shutil.rmtree(path_destination)
             path_destination = path_destination + '_Augmented'
-            try:
-                os.mkdir(path_destination)
-            except FileExistsError:
-                shutil.rmtree(path_destination)
-                os.mkdir(path_destination)
-            print(path_original.split('\\')[-1])
+            os.mkdir(path_destination)
+            print(path_original.split('\\')[-1]+'... ', end="")
             for file in glob.glob(path_original + '\\*.png'):
                 image = self.getImage(file)
                 if preference['copy'] is True:
@@ -352,3 +354,4 @@ class DataAugmentationAPI:
                 self.randomAugments(image, path_destination)
                 if preference['remove'] is True:
                     os.remove(file)
+            print(path_destination.split('\\')[-1])
