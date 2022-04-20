@@ -56,22 +56,27 @@ class TestDataAugmentationAPI(TestCase):
 
     def parameterTesting():
     ok = True
+    count= 0
     for i in range(0,100):
         rotate_param = random.randint(-25, 25)
         if rotate_param in range(-25,26):
             ok = True
+            count = count + 1
         else:
             ok= False
         stretch_param = random.randint(1, 5)
         if stretch_param in range(1, 6):
             ok = True
+            count = count + 1
         else:
             ok=False
+    print(count / 2)
 
     if ok:
         return True
     else:
         return False
+
 
 class TestDataAugmentationAPI2(TestCase):
     def test(self):
