@@ -1,0 +1,8 @@
+BINARY CLASSIFICATION 
+
+no=non demented, very mild demented
+yes=moderate demented, mild demented
+
+
+pacientul testat este OAS300001 care conform csv-ului este COGNITIVE NORMAL
+orice poza ca input ar tb sa dea NO
