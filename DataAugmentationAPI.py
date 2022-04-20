@@ -131,52 +131,52 @@ class DataAugmentationAPI:
     def addImage(self, image, varianta, filename):
         match varianta:
             case 'blur':
-                path = self.destination + '\\' + filename + '\\blurred.png'
+                path = filename + '\\blurred.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = self.destination + '\\' + filename + '\\blurred' + str(i) + '.png'
+                    path = filename + '\\blurred' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'rotate':
-                path = self.destination + '\\' + filename + '\\rotate.png'
+                path = filename + '\\rotate.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = self.destination + '\\' + filename + '\\rotate' + str(i) + '.png'
+                    path = filename + '\\rotate' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'flip':
-                path = self.destination + '\\' + filename + '\\flipped.png'
+                path = filename + '\\flipped.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = self.destination + '\\' + filename + '\\flipped' + str(i) + '.png'
+                    path = filename + '\\flipped' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'mirror':
-                path = self.destination + '\\' + filename + '\\mirrored.png'
+                path = filename + '\\mirrored.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = self.destination + '\\' + filename + '\\mirrored' + str(i) + '.png'
+                    path = filename + '\\mirrored' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'stretch':
-                path = self.destination + '\\' + filename + '\\stretched.png'
+                path = filename + '\\stretched.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = self.destination + '\\' + filename + '\\stretched' + str(i) + '.png'
+                    path = filename + '\\stretched' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'crop':
-                path = self.destination + '\\' + filename + '\\cropped.png'
+                path = filename + '\\cropped.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = self.destination + '\\' + filename + '\\cropped' + str(i) + '.png'
+                    path = filename + '\\cropped' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'contrast':
-                path = self.destination + '\\' + filename + '\\contrasted.png'
+                path = filename + '\\contrasted.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = self.destination + '\\' + filename + '\\contrasted' + str(i) + '.png'
+                    path = filename + '\\contrasted' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
 
@@ -205,7 +205,7 @@ class DataAugmentationAPI:
                     pass
         return augmented_image
 
-    def randomAugments(self, image):
+    def randomAugments(self, image, save_location):
         for j in range(10):
             augmented_image = image
             # plt.imshow(augmented_image)
@@ -228,7 +228,7 @@ class DataAugmentationAPI:
                             augments_order.append(x)
                             augments_done['blur'] = 1
                             augmented_image = self.gaussianBlur(augmented_image)
-                            self.addImage(augmented_image, 'blur', (image.filename.split('\\')[-1])[:-4])
+                            self.addImage(augmented_image, 'blur', save_location)
                             # plt.imshow(augmented_image)
                             # plt.show()
                     case 2:
@@ -240,7 +240,7 @@ class DataAugmentationAPI:
                             augments_done['rotate'] = 1
                             angle = random.randint(-25, 25)
                             augmented_image = self.rotate(augmented_image, angle)
-                            self.addImage(augmented_image, 'rotate', (image.filename.split('\\')[-1])[:-4])
+                            self.addImage(augmented_image, 'rotate', save_location)
                             # plt.imshow(augmented_image)
                             # plt.show()
                     case 3:
@@ -251,7 +251,7 @@ class DataAugmentationAPI:
                             augments_order.append(x)
                             augments_done['flip'] = 1
                             augmented_image = self.flip(augmented_image, 'flip')
-                            self.addImage(augmented_image, 'flip', (image.filename.split('\\')[-1])[:-4])
+                            self.addImage(augmented_image, 'flip', save_location)
                             # plt.imshow(augmented_image)
                             # plt.show()
                     case 4:
@@ -262,7 +262,7 @@ class DataAugmentationAPI:
                             augments_order.append(x)
                             augments_done['mirror'] = 1
                             augmented_image = self.flip(augmented_image, 'mirror')
-                            self.addImage(augmented_image, 'mirror', (image.filename.split('\\')[-1])[:-4])
+                            self.addImage(augmented_image, 'mirror', save_location)
                             # plt.imshow(augmented_image)
                             # plt.show()
                     case 5:
@@ -275,7 +275,7 @@ class DataAugmentationAPI:
                             horizontal = float(f'{random.uniform(0.1, 0.5):.1f}')
                             vertical = float(f'{random.uniform(0.1, 0.5):.1f}')
                             augmented_image = self.imageStretch(augmented_image, horizontal, vertical)
-                            self.addImage(augmented_image, 'stretch', (image.filename.split('\\')[-1])[:-4])
+                            self.addImage(augmented_image, 'stretch', save_location)
                             # plt.imshow(augmented_image)
                             # plt.show()
                     case 6:
@@ -290,7 +290,7 @@ class DataAugmentationAPI:
                                 augmented_image = self.cropRemake(image, augmented_image, augments_order, angle,
                                                                   horizontal,
                                                                   vertical, rand)
-                            self.addImage(augmented_image, 'crop', (image.filename.split('\\')[-1])[:-4])
+                            self.addImage(augmented_image, 'crop', save_location)
                     case 7:
                         if augments_done['contrast'] == 1:
                             pass
@@ -302,7 +302,7 @@ class DataAugmentationAPI:
                             while rand == 1.0:
                                 rand = float(f'{random.uniform(0.5, 1.5):.1f}')
                             augmented_image = self.contrast(augmented_image, rand)
-                            self.addImage(augmented_image, 'contrast', (image.filename.split('\\')[-1])[:-4])
+                            self.addImage(augmented_image, 'contrast', save_location)
                             # plt.imshow(augmented_image)
                             # plt.show()
 
@@ -329,18 +329,26 @@ class DataAugmentationAPI:
             preference = self.removeOriginalFiles()
         else:
             preference = self.removeOriginalFiles(None)
-        current_image = 1
-        for file in glob.glob(self.source + '\\*.png'):
-            image = self.getImage(file)
+        directories = os.listdir(self.source)
+        for dir in directories:
+            if '_Augmented' in dir is True:
+                shutil.rmtree(self.source+'\\'+dir)
+            path_original = os.path.join(self.source, dir)
+            path_destination = os.path.join(self.destination, dir)
+            if os.path.exists(path_destination):
+                shutil.rmtree(path_destination)
+            path_destination = path_destination + '_Augmented'
             try:
-                os.mkdir(self.destination + '\\' + (image.filename.split('\\')[-1])[:-4])
-                if preference['copy'] is True:
-                    shutil.copy(file, self.destination + '\\' + (image.filename.split('\\')[-1])[:-4] + '\\' + (
-                        image.filename.split('\\')[-1]))
+                os.mkdir(path_destination)
             except FileExistsError:
-                print("Folder " + (image.filename.split('\\')[-1])[:-4] + " already exists!")
-            print('Augmenting... ' + str(current_image))
-            current_image += 1
-            self.randomAugments(image)
-            if preference['remove'] is True:
-                os.remove(file)
+                shutil.rmtree(path_destination)
+                os.mkdir(path_destination)
+            print(path_original.split('\\')[-1])
+            for file in glob.glob(path_original + '\\*.png'):
+                image = self.getImage(file)
+                if preference['copy'] is True:
+                    shutil.copy(file, path_destination + '\\' + (
+                        image.filename.split('\\')[-1]))
+                self.randomAugments(image, path_destination)
+                if preference['remove'] is True:
+                    os.remove(file)

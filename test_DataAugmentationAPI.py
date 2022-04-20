@@ -54,3 +54,23 @@ class TestDataAugmentationAPI(TestCase):
         contrast_already = test.getImage("expected_output\\contrast1.png")
         self.assertEqual(contrast, contrast_already)
 
+    def parameterTesting():
+        ok = True
+
+        for i in range(0,100):
+            rotate_param = random.randint(-25, 25)
+            if not (rotate_param in range(-25,25)):
+                ok = False
+
+            stretch_param = random.randint(1, 5)
+            if not (rotate_param in range(1, 5)):
+                ok = False
+        if ok:
+            return True
+        else:
+            return False
+
+
+    class TestDataAugmentationAPI2(TestCase):
+        def test(self):
+            self.assertEqual(parameterTesting(),True)
