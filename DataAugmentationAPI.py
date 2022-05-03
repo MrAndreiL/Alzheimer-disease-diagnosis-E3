@@ -15,6 +15,7 @@ from PIL.ImageOps import mirror
 class DataAugmentationAPI:
     source = None
     destination = None
+    imageID = None
 
     def __init__(self):
         pass
@@ -55,8 +56,8 @@ class DataAugmentationAPI:
         return image
 
     # Method to blur the image
-    def gaussianBlur(self, image):
-        blurImage = image.filter(ImageFilter.BLUR)
+    def gaussianBlur(self, image, rad):
+        blurImage = image.filter(ImageFilter.GaussianBlur(radius=rad))
         return blurImage
 
     # Method to rotate the image
@@ -131,60 +132,60 @@ class DataAugmentationAPI:
     def addImage(self, image, varianta, filename):
         match varianta:
             case 'blur':
-                path = filename + '\\blurred.png'
+                path = filename + '\\' + self.imageID + '_blurred.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = filename + '\\blurred' + str(i) + '.png'
+                    path = filename + '\\' + self.imageID + '_blurred' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'rotate':
-                path = filename + '\\rotate.png'
+                path = filename + '\\' + self.imageID + '_rotate.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = filename + '\\rotate' + str(i) + '.png'
+                    path = filename + '\\' + self.imageID + '_rotate' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'flip':
-                path = filename + '\\flipped.png'
+                path = filename + '\\' + self.imageID + '_flipped.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = filename + '\\flipped' + str(i) + '.png'
+                    path = filename + '\\' + self.imageID + '_flipped' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'mirror':
-                path = filename + '\\mirrored.png'
+                path = filename + '\\' + self.imageID + '_mirrored.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = filename + '\\mirrored' + str(i) + '.png'
+                    path = filename + '\\' + self.imageID + '_mirrored' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'stretch':
-                path = filename + '\\stretched.png'
+                path = filename + '\\' + self.imageID + '_stretched.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = filename + '\\stretched' + str(i) + '.png'
+                    path = filename + '\\' + self.imageID + '_stretched' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'crop':
-                path = filename + '\\cropped.png'
+                path = filename + '\\' + self.imageID + '_cropped.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = filename + '\\cropped' + str(i) + '.png'
+                    path = filename + '\\' + self.imageID + '_cropped' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
             case 'contrast':
-                path = filename + '\\contrasted.png'
+                path = filename + '\\' + self.imageID + '_contrasted.png'
                 i = 1
                 while os.path.isfile(path):
-                    path = filename + '\\contrasted' + str(i) + '.png'
+                    path = filename + '\\' + self.imageID + '_contrasted' + str(i) + '.png'
                     i = i + 1
                 image.save(path)
 
-    def cropRemake(self, image, augmented_image, augments_order, rotate_angle, stretchx, stretchy, contrast_level):
+    def cropRemake(self, image, augmented_image, augments_order, rotate_angle, stretchx, stretchy, contrast_level, rad):
         for x in augments_order:
             match x:
                 case 1:
-                    augmented_image = self.gaussianBlur(augmented_image)
+                    augmented_image = self.gaussianBlur(augmented_image, rad)
                     # self.addImage(augmented_image, 'crop', (image.filename.split('\\')[-1])[:-4])
                 case 2:
                     augmented_image = self.rotate(augmented_image, rotate_angle)
@@ -217,6 +218,7 @@ class DataAugmentationAPI:
             rand = 0
             horizontal = 0
             vertical = 0
+            rad = 0
             while k < 7:
                 x = random.randint(1, 7)
                 match x:
@@ -227,7 +229,8 @@ class DataAugmentationAPI:
                             k = k + 1
                             augments_order.append(x)
                             augments_done['blur'] = 1
-                            augmented_image = self.gaussianBlur(augmented_image)
+                            rad = random.randint(1,2)
+                            augmented_image = self.gaussianBlur(augmented_image, rad)
                             self.addImage(augmented_image, 'blur', save_location)
                             # plt.imshow(augmented_image)
                             # plt.show()
@@ -289,7 +292,7 @@ class DataAugmentationAPI:
                             if k > 1:
                                 augmented_image = self.cropRemake(image, augmented_image, augments_order, angle,
                                                                   horizontal,
-                                                                  vertical, rand)
+                                                                  vertical, rand, rad)
                             self.addImage(augmented_image, 'crop', save_location)
                     case 7:
                         if augments_done['contrast'] == 1:
@@ -348,6 +351,7 @@ class DataAugmentationAPI:
             print(path_original.split('\\')[-1]+'... ', end="")
             for file in glob.glob(path_original + '\\*.png'):
                 image = self.getImage(file)
+                self.imageID = image.filename.split('\\')[-1][:-4]
                 if preference['copy'] is True:
                     shutil.copy(file, path_destination + '\\' + (
                         image.filename.split('\\')[-1]))

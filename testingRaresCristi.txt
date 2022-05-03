@@ -1,0 +1,264 @@
+from unittest import TestCase
+# Required Libraries
+import glob
+
+import matplotlib.pyplot as plt
+import shutil
+import random
+import os
+import PIL
+import numpy
+from PIL import Image, ImageFilter, ImageEnhance
+from PIL.ImageOps import mirror
+
+
+#from DataAugmentationAPI import DataAugmentationAPI
+
+#test = DataAugmentationAPI
+
+def generateExpectedStretch (image):
+    try:
+        os.mkdir("StretchedExpectedOutcome")
+    except FileExistsError:
+        print("Folder already exists!")
+
+    for vertical in range(1, 6):
+        for horizontal in  range(1, 6):
+            stretched_image = Image.open("brain.png")
+            stretched_image = stretched_image.resize((round(stretched_image.size[0] * (1 + horizontal/ 10)), round(stretched_image.size[1] * (1 + vertical/ 10))))
+            stretched_image.save("StretchedExpectedOutcome/" + "h" + str(horizontal) + "v" + str(vertical) + ".png")
+            stretched_image.close()
+
+def testRandomStretch(image):
+    expectedOutcomeFound = False
+
+    horizontal = random.randint(1, 5) / 10
+    vertical = random.randint(1, 5) / 10
+
+    test_image = Image.open("brain.png")
+    test_image = test_image.resize((round(test_image.size[0] * (1 + horizontal)), round(test_image.size[1] * (1 + vertical))))
+    #test_image.show()
+    test_image.save("test.png")
+
+    filelist = os.listdir('StretchedExpectedOutcome')
+    for fichier in filelist:
+
+        image1 = open("test.png", "rb")
+        image2 = open("StretchedExpectedOutcome/" + fichier, "rb")
+        if image1.read() == image2.read():
+            expectedOutcomeFound = True
+
+        image1.close()
+        image2.close()
+
+        os.remove("StretchedExpectedOutcome/" + fichier)
+    os.remove("test.png")
+    os.rmdir("StretchedExpectedOutcome")
+
+    if expectedOutcomeFound == True:
+        return True
+    else:
+        return False
+
+def generateExpectedRotate (image):
+    try:
+        os.mkdir("RotationExpectedOutcome")
+    except FileExistsError:
+        print("Folder already exists!")
+
+    for angle in range(-25,25):
+        rotated_image = Image.open(image)
+        rotated_image = rotated_image.rotate(angle, expand = True)
+        rotated_image.save("RotationExpectedOutcome/" + str(angle) + ".png")
+
+def testRandomRotate(image):
+    expectedOutcomeFound = False
+
+    test = Image.open(image)
+
+    test.rotate(random.randint(-25, 25), expand= True)
+
+    test.save("test.png")
+
+    filelist = os.listdir('RotationExpectedOutcome')
+    for fichier in filelist:
+
+        image1 = open("test.png", "rb")
+        image2 = open("RotationExpectedOutcome/" + fichier, "rb")
+        if image1.read() == image2.read():
+            expectedOutcomeFound = True
+
+        image1.close()
+        image2.close()
+
+        os.remove("RotationExpectedOutcome/" + fichier)
+    os.remove("test.png")
+    os.rmdir("RotationExpectedOutcome")
+
+    if expectedOutcomeFound == True:
+        return True
+    else:
+        return False
+
+def generateExpectedFlip (image):
+    try:
+        os.mkdir("FlipExpectedOutcome")
+    except FileExistsError:
+        print("Folder already exists!")
+
+    image_original = Image.open(image)
+    image1 = PIL.ImageOps.mirror(image_original)
+    image1.save("FlipExpectedOutcome/mirror.png")
+    image2 = PIL.ImageOps.flip(image_original)
+    image2.save("FlipExpectedOutcome/flip.png")
+
+
+def testRandomFlip(image):
+    expectedOutcomeFound = False
+
+
+    filelist = os.listdir('FlipExpectedOutcome')
+    for fichier in filelist:
+        image1 = open(image, "rb")  # imaginea pe care vrei sa o testezi
+        image2 = open("FlipExpectedOutcome/" + fichier, "rb")
+        if image1.read() == image2.read():
+            expectedOutcomeFound = True
+
+        image1.close()
+        image2.close()
+
+        os.remove("FlipExpectedOutcome/" + fichier)
+
+    os.rmdir("FlipExpectedOutcome")
+
+    if expectedOutcomeFound == True:
+        return True
+    else:
+        return False
+
+def generateExpectedBlur (image):
+    try:
+        os.mkdir("BlurExpectedOutcome")
+    except FileExistsError:
+        print("Folder already exists!")
+
+    image_original = Image.open(image)
+    image1 = image_original.filter(ImageFilter.BLUR)
+    image1.save("BlurExpectedOutcome/blurred.png")
+
+def testRandomBlur(image):
+    expectedOutcomeFound = False
+
+
+    filelist = os.listdir('BlurExpectedOutcome')
+    for fichier in filelist:
+        image1 = open(image, "rb")  # imaginea pe care vrei sa o testezi
+        image2 = open("BlurExpectedOutcome/" + fichier, "rb")
+        if image1.read() == image2.read():
+            expectedOutcomeFound = True
+
+        image1.close()
+        image2.close()
+
+        os.remove("BlurExpectedOutcome/" + fichier)
+
+    os.rmdir("BlurExpectedOutcome")
+
+    if expectedOutcomeFound == True:
+        return True
+    else:
+        return False
+
+def range_with_floats(start, stop, step):       #functie pentru parcurgerea cu for pentru float
+    while stop > start:
+        yield start
+        start += step
+
+def generateExpectedContrast (image):
+    try:
+        os.mkdir("ContrastExpectedOutcome")
+    except FileExistsError:
+        print("Folder already exists!")
+
+    for contrast in range_with_floats(0.1, 2, 0.1):
+        contrasted_image_original = Image.open(image)
+        enhancer = ImageEnhance.Contrast(contrasted_image_original)
+        contrasted = enhancer.enhance(contrast)
+        contrasted.save("ContrastExpectedOutcome/" + str(contrast) + ".png")
+
+def testRandomContrast(image):
+    expectedOutcomeFound = False
+
+
+    filelist = os.listdir('ContrastExpectedOutcome')
+    for fichier in filelist:
+        image1 = open(image, "rb")  # imaginea pe care vrei sa o testezi
+        image2 = open("ContrastExpectedOutcome/" + fichier, "rb")
+        if image1.read() == image2.read():
+            expectedOutcomeFound = True
+
+        image1.close()
+        image2.close()
+
+        os.remove("ContrastExpectedOutcome/" + fichier)
+
+    os.rmdir("ContrastExpectedOutcome")
+
+    if expectedOutcomeFound:
+        return True
+    else:
+        return False
+class TestDataAugmentationAPI(TestCase):
+
+    def test_rotate(self):
+        generateExpectedRotate("brain.png")
+        self.assertEqual(testRandomRotate("brain.png"), True)
+
+    def test_Flip(self):
+        generateExpectedFlip("brain.png")
+        self.assertEqual(testRandomFlip("mirror_test.png"), True)
+    
+    def test_Blur(self):
+        generateExpectedBlur("brain.png")
+        self.assertEqual(testRandomBlur("blurred_test.png"), True)
+
+    def test_Stretch(self):
+        generateExpectedStretch("brain.png")
+        self.assertEqual(testRandomStretch("brain.png"), True)
+        
+    def test_Constrast(self):
+        generateExpectedContrast("brain.png")
+        self.assertEqual(testRandomContrast("contrasted_test.png"), True)
+        
+def parameterTesting():
+    ok = True
+    count= 0
+    for i in range(0,100):
+        rotate_param = random.randint(-25, 25)
+        if rotate_param in range(-25,26):
+            ok = True
+            count = count + 1
+        else:
+            ok= False
+        stretch_param = random.randint(1, 5)
+        if stretch_param in range(1, 6):
+            ok = True
+            count = count + 1
+        else:
+            ok=False
+    print(count / 2)
+
+    if ok:
+        return True
+    else:
+        return False
+
+
+class TestDataAugmentationAPI2(TestCase):
+    def test(self):
+        self.assertEqual(parameterTesting(),True)
+
+
+
+
+
