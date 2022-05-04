@@ -1,0 +1,11 @@
+
+
+20 epoch (1) Versiune pre-lab + dataset lab anterior: 0.60-0.63
+5 epoch (2) Versiune pre-lab + dataset nou: 0.56
+5 epoch (3) Versiune noua + dataset nou: 0.55
+
+
+tried:
+https://towardsdatascience.com/deep-learning-using-transfer-learning-python-code-for-resnet50-8acdfb3a2d38
+https://pyimagesearch.com/2020/04/27/fine-tuning-resnet-with-keras-tensorflow-and-deep-learning/
+https://analyticsindiamag.com/mobilenet-vs-resnet50-two-cnn-transfer-learning-light-frameworks/
