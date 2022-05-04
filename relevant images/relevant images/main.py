@@ -40,19 +40,22 @@ class RelevantImages():
 
     def compareAll(self):
         numberOfPhoto = 0
+        pathFinal = r'C:\Users\Rogue EX\Desktop\relevant\new brains\a'
         for image in self.imagesFromSlicing:
             flag = 0
             for image2 in self.imagesToCompareWith:
                 result = self.compare(image, image2)
-                if result > 80:
+                if result > 2.0:
                     flag = 1
+                    break
             if(flag == 1):
                 numberOfPhoto += 1
-                cv2.imwrite(f'brainsRelevant/{"Brain" + str(numberOfPhoto)}.png',image)
+                cv2.imwrite(f'{pathFinal}{"Brain" + str(numberOfPhoto)}.png',image)
         return numberOfPhoto
 
-path1 = r'C:\chestii\de mutat\cursuri\anul2\SEM2\PI\Pre-Processing\brainsFromSlicing'
-path2 = r'C:\chestii\de mutat\cursuri\anul2\SEM2\PI\Pre-Processing\brainsToCompareWith'
+path1 = r'C:\Users\Rogue EX\Desktop\relevant\brainsFromSlicing'
+path2 = r'C:\Users\Rogue EX\Desktop\relevant\brainsToCompare'
 
 scanner = RelevantImages(path1,path2)
 print(scanner.compareAll())
+
