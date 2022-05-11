@@ -1,10 +1,7 @@
 # Alzheimer-disease-diagnosis-E3
 This is the public repository for the Software Engineering course project assigned to group E3.
 
-
 Technical Report:
-Solutia propusa
-- datele de intrare (descrierea lor) - de unde sunt luate, tipul datelor, statistici (cate sunt, dimensiune, etc.)
 
 Vlad:
 Relevant folders:
@@ -32,7 +29,6 @@ Using the processing power of my AMD Ryzen 7 4800h, I managed to augment between
 This resulted in me obtaining 10.5GB of data in around 30 minutes.
 All the data that I generated has been transferred to an External Hard Drive, that will be passed on to the CNN team.
 
-
 Rares:
 Pentru folderele: Vascular_Demt-_secondary, Vascular_Demt-_primary, Vascular_demt__primary, Cognitive normal, AD-dem_wdepress__not_contribut, AD_dem_distrubed_social-_with, cu dimensiunea totala de 898MB, cu 26.943 slice-uri primite de la pre-processing, cu procesorul Intel I5-10300, 2.50GHZ, 4 Core(s), am obtinut la o rate de augmentare de 4.7 slice-uri pe secundă, un total de 231.672 de poze augmentate într-un timp total de 51:15.02, cu dimensiunea totala de 9.09GB pe care le-am transmis la CNN printr-un disk extern.
 
@@ -54,19 +50,4 @@ Antonio:
 For the folders AD_Dementia (3872 files ), AD_dem_Language_dysf_after(683 files ), AD_dem_Language_dysf_with(693 files ),  AD_dem_wdepresss-_not_contribut(1286  files ), ASTEA  NU AU LABEL(935 fisiere), DLBD-_primary(1926 files), Unc_ques._Impairment(898 files ) received from pre-processing , in total 9600 files, without the deleted files  ~50-100 . After augmentation i have 720510 images , 730803 with the originals , total size 42.7 GB and one image is between 8 KB and 178 KB. Aproximative time is 57 min 36 sec , the time was estimated with an example of  50 images and a duration of ~18 sec using the processor AMD Ryzen 9 5900HX with Radeon Graphics 3.30 GHz.
 Real time can be higher then the estimated time when there are alot of files (ex. 100 000 images)
 
-
-
-
-
-
-
-Descrierea fiecarui modul in parte
-- ce-si propune sa faca
-- cum arata datele de intrare
-- cum arata datele de iesire
-- operatii de baza (de exemplu la preprocesare avem slicing, eliminare imagini din capete, etc.)
-- statistici (cat dureaza rularea operatiilor de baza, cate imagini se obtin, dimensiune mega, etc.)
-
 The Data Augmentation API seeks to produce appropriate augmented pictures in order to improve diagnostic accuracy.
-
-
