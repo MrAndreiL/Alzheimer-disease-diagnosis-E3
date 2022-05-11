@@ -86,8 +86,9 @@ class DataAugmentationAPI:
     def centerCrop(self, image):
         w, h = image.size
         cv_img = numpy.asarray(image)
-        gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, threshold1=75, threshold2=100)
+        # gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
+        # edges = cv2.Canny(gray, threshold1=75, threshold2=100)
+        edges = cv2.Canny(cv_img, threshold1=75, threshold2=100)
         y_up = h
         y_down = 0
         x_left = w
